@@ -1,28 +1,62 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import Titles from './components/Titles'
+import Form from './components/Form'
+import Weather from './components/Weather'
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+const API_KEY = '43ce3234b5a8aecfac5633a6504126e0'
+
+class App extends React.Component {
+	state = {
+		temperature: undefined,
+		city: undefined,
+		country: undefined,
+		humidity: undefined,
+		description: undefined,
+		error: undefined
+	}
+
+	getWeather = async (e) => {
+		e.preventDefault()
+
+		const city = e.target.elements.city.value
+		const country = e.target.elements.country.value
+		const apiCall = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}&units=metric`)
+		const data = await apiCall.json()
+
+		this.setState({
+			temperature: data.main.temp,
+			city: data.name,
+			country: data.sys.country,
+			humidity: data.main.humidity,
+			description: data.weather[0].description,
+			error: ""
+		})
+	}
+
+	render() {
+		const { 
+			temperature,
+			city,
+			country,
+			humidity,
+			description,
+			error
+		 } = this.state
+		return (
+			<div>
+				<Titles />
+				<Form getWeather={this.getWeather} />
+				<Weather 
+					temperature={temperature} 
+					city={city}
+					country={country}
+					humidity={humidity}
+					description={description}
+					error={error}
+				/>
+			</div>
+		)
+	}
 }
 
-export default App;
+export default App
